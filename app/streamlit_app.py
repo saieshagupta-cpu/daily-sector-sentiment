@@ -63,20 +63,29 @@ def build_ticker_names() -> dict[str, str]:
     """Map every ticker we care about to a display-ready company name.
 
     Priority: universe.yaml (curated, nice case) → Finnhub universe (auto title-case).
+
+    Resilient: if the Finnhub universe isn't available (no cache file AND no
+    API key — typical on Streamlit Cloud), we fall back to just the blue chip
+    names. New-name tickers will show without a company name in that case.
     """
     names: dict[str, str] = {}
-    # 1) Blue chips from universe.yaml — already nicely cased
+    # 1) Blue chips from universe.yaml — always available, nicely cased
     for rows in UNIVERSE.values():
         for row in rows:
             names[row["ticker"]] = row.get("name", row["ticker"])
-    # 2) Everything else from the Finnhub US universe (~5,461 names)
-    us_uni = get_us_universe()
-    for ticker, info in us_uni.items():
-        if ticker in names:
-            continue
-        raw = info.get("name") or ""
-        if raw:
-            names[ticker] = _prettify(raw)
+    # 2) Everything else from the Finnhub US universe (cached locally)
+    try:
+        us_uni = get_us_universe()
+        for ticker, info in us_uni.items():
+            if ticker in names:
+                continue
+            raw = info.get("name") or ""
+            if raw:
+                names[ticker] = _prettify(raw)
+    except Exception as e:
+        # No cache + no API key (e.g. deployed without Finnhub secret) — degrade
+        # gracefully. Dashboard still renders; just no company names on New Names.
+        print(f"[streamlit_app] universe unavailable, blue-chip names only: {e}")
     return names
 
 
