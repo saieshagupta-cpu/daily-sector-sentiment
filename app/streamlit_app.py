@@ -1,14 +1,14 @@
-"""Daily sector-sentiment dashboard.
+"""Daily Sector Sentiment — dashboard.
 
-Shows, per sector:
-- BIG NAMES: 10 fixed established leaders with daily news sentiment
-- NEW NAMES: top 10 lesser-known mid/small caps with strongest price momentum
-  + sentiment overlay
+Two views:
+1. Landing — pick a sector you care about today.
+2. Sector detail — Big Names + New Names side by side, each ticker expandable
+   to its full stats + headline trail.
 
-Each card expands into the headlines that drove the score (with source links).
+Methodology lives in a collapsed expander at the bottom.
 
 Run:
-    streamlit run amaltash_sentiment/app/streamlit_app.py
+    streamlit run app/streamlit_app.py
 """
 from __future__ import annotations
 
@@ -28,6 +28,25 @@ from extract.resolver import get_universe as get_us_universe
 from store.db import DB_PATH
 
 
+SECTOR_ORDER = ["energy", "healthcare", "minerals", "tech", "real_estate", "finance"]
+SECTOR_LABELS = {
+    "energy":      "Energy",
+    "healthcare":  "Healthcare",
+    "minerals":    "Minerals",
+    "tech":        "Tech",
+    "real_estate": "Real Estate",
+    "finance":     "Finance",
+}
+SECTOR_BLURBS = {
+    "energy":      "Oil & gas, AI power, nuclear, renewables, midstream",
+    "healthcare":  "Pharma, biotech, medical devices, managed care",
+    "minerals":    "Metals, mining, chemicals, battery materials",
+    "tech":        "Semiconductors, software, AI infra, fintech",
+    "real_estate": "REITs across industrial, residential, data center, retail",
+    "finance":     "Banks, asset managers, payments, brokerages",
+}
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Company-name lookup
 # ─────────────────────────────────────────────────────────────────────────────
@@ -40,16 +59,13 @@ _NAME_SUFFIXES_TO_STRIP = (
 
 
 def _prettify(raw: str) -> str:
-    """Convert ALL-CAPS Finnhub name to Title Case, strip noisy suffixes."""
     if not raw:
         return ""
-    s = raw.strip()
-    # Strip trailing class-share designators e.g. " - CLASS A", " - A"
     import re
+    s = raw.strip()
     s = re.sub(r"\s*[-/]?\s*(class|cl)\s+[a-z](\s+shares?)?$", "", s, flags=re.I)
     s = re.sub(r"\s*-\s*[a-z]$", "", s, flags=re.I)
     s = s.title()
-    # Strip suffixes after title-casing for cleaner names
     lower = s.lower()
     for suf in _NAME_SUFFIXES_TO_STRIP:
         if lower.endswith(suf):
@@ -60,20 +76,10 @@ def _prettify(raw: str) -> str:
 
 @st.cache_data(ttl=3600)
 def build_ticker_names() -> dict[str, str]:
-    """Map every ticker we care about to a display-ready company name.
-
-    Priority: universe.yaml (curated, nice case) → Finnhub universe (auto title-case).
-
-    Resilient: if the Finnhub universe isn't available (no cache file AND no
-    API key — typical on Streamlit Cloud), we fall back to just the blue chip
-    names. New-name tickers will show without a company name in that case.
-    """
     names: dict[str, str] = {}
-    # 1) Blue chips from universe.yaml — always available, nicely cased
     for rows in UNIVERSE.values():
         for row in rows:
             names[row["ticker"]] = row.get("name", row["ticker"])
-    # 2) Everything else from the Finnhub US universe (cached locally)
     try:
         us_uni = get_us_universe()
         for ticker, info in us_uni.items():
@@ -83,28 +89,15 @@ def build_ticker_names() -> dict[str, str]:
             if raw:
                 names[ticker] = _prettify(raw)
     except Exception as e:
-        # No cache + no API key (e.g. deployed without Finnhub secret) — degrade
-        # gracefully. Dashboard still renders; just no company names on New Names.
-        print(f"[streamlit_app] universe unavailable, blue-chip names only: {e}")
+        print(f"[streamlit_app] universe unavailable: {e}")
     return names
 
 
-TICKER_NAMES: dict[str, str] = {}  # filled inside main() after Streamlit boots
-
-
-SECTOR_LABELS = {
-    "energy":      "Energy",
-    "healthcare":  "Healthcare",
-    "minerals":    "Minerals",
-    "tech":        "Tech",
-    "real_estate": "Real Estate",
-    "finance":     "Finance",
-}
-SECTOR_ORDER = ["energy", "healthcare", "minerals", "tech", "real_estate", "finance"]
+TICKER_NAMES: dict[str, str] = {}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Data access
+# Data
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _conn() -> sqlite3.Connection:
@@ -153,18 +146,15 @@ def load_top_headlines(ticker: str, limit: int = 5) -> pd.DataFrame:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Formatting helpers — clean, no emoji clutter
+# Formatting
 # ─────────────────────────────────────────────────────────────────────────────
 
 def fmt_sentiment(score: float | None) -> str:
-    """Colored sentiment number, no emoji."""
     if score is None or pd.isna(score):
         return ":gray[—]"
     s = f"{score:+.2f}"
-    if score >= 0.30:
-        return f":green[**{s}**]"
-    if score <= -0.30:
-        return f":red[**{s}**]"
+    if score >= 0.30:  return f":green[**{s}**]"
+    if score <= -0.30: return f":red[**{s}**]"
     return f":gray[{s}]"
 
 
@@ -172,14 +162,10 @@ def fmt_strength(comp: float | None) -> str:
     if comp is None or pd.isna(comp):
         return ":gray[—]"
     s = f"{comp:+.2f}"
-    if comp >= 0.40:
-        return f":green[**{s}**]"
-    if comp >= 0.10:
-        return f":green[{s}]"
-    if comp <= -0.40:
-        return f":red[**{s}**]"
-    if comp <= -0.10:
-        return f":red[{s}]"
+    if comp >= 0.40:  return f":green[**{s}**]"
+    if comp >= 0.10:  return f":green[{s}]"
+    if comp <= -0.40: return f":red[**{s}**]"
+    if comp <= -0.10: return f":red[{s}]"
     return f":gray[{s}]"
 
 
@@ -187,10 +173,8 @@ def fmt_pct(p: float | None) -> str:
     if p is None or pd.isna(p):
         return ":gray[—]"
     s = f"{p:+.1%}"
-    if p >= 0.05:
-        return f":green[{s}]"
-    if p <= -0.05:
-        return f":red[{s}]"
+    if p >= 0.05:  return f":green[{s}]"
+    if p <= -0.05: return f":red[{s}]"
     return f":gray[{s}]"
 
 
@@ -200,90 +184,90 @@ def fmt_ta(passes: int | None) -> str:
     return "✅" if int(passes) == 1 else "❌"
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Card rendering
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _ticker_label(ticker: str) -> str:
-    """Header label: **TICKER**  _Company Name_."""
+def _label(ticker: str) -> str:
     name = TICKER_NAMES.get(ticker, "")
     if not name or name.upper() == ticker:
         return f"**{ticker}**"
-    return f"**{ticker}**  _{name}_"
+    return f"**{ticker}** &nbsp; *{name}*"
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cards
+# ─────────────────────────────────────────────────────────────────────────────
 
 def render_big_card(row: pd.Series) -> None:
-    """BIG NAMES card — leads with sentiment, supplements with TA."""
+    """BIG NAMES card — collapsed header is just label + sentiment + mentions."""
     ticker = row["ticker"]
     sent = row["sentiment_weighted"]
     mentions = int(row["mention_count"]) if pd.notna(row["mention_count"]) else 0
-    price = row.get("price")
-    rsi = row.get("rsi_14")
-    passes = row.get("passes_gate")
 
-    parts = [_ticker_label(ticker), fmt_sentiment(sent)]
-    if pd.notna(price):
-        parts.append(f":gray[${price:,.2f}]")
-    if pd.notna(rsi):
-        parts.append(f":gray[RSI {rsi:.0f}]")
-    ta = fmt_ta(passes)
-    if ta:
-        parts.append(ta)
-    parts.append(f":gray[{mentions} headlines]")
-    header = " &nbsp;·&nbsp; ".join(parts)
-
+    header = f"{_label(ticker)} &nbsp;·&nbsp; {fmt_sentiment(sent)} &nbsp;·&nbsp; :gray[{mentions} stories]"
     with st.expander(header):
+        # Price / RSI / TA gate
+        m_cols = st.columns(4)
+        price = row.get("price")
+        rsi = row.get("rsi_14")
+        passes = row.get("passes_gate")
+        mcap = row.get("market_cap")
+        if pd.notna(price):
+            m_cols[0].metric("Price", f"${price:,.2f}")
+        if pd.notna(rsi):
+            m_cols[1].metric("RSI(14)", f"{rsi:.0f}")
+        if pd.notna(mcap):
+            mcap_str = f"${mcap/1e9:,.1f}B" if mcap >= 1e9 else f"${mcap/1e6:,.0f}M"
+            m_cols[2].metric("Market cap", mcap_str)
+        ta = fmt_ta(passes)
+        if ta:
+            m_cols[3].metric("TA gate", ta)
         _render_headlines(ticker, mentions)
 
 
 def render_new_card(row: pd.Series) -> None:
-    """NEW NAMES card — leads with strength + 3m return."""
+    """NEW NAMES card — collapsed header is label + strength + 3m return."""
     ticker = row["ticker"]
-    sent = row["sentiment_weighted"]
-    mentions = int(row["mention_count"]) if pd.notna(row["mention_count"]) else 0
-    price = row.get("price")
-    rsi = row.get("rsi_14")
     comp = row.get("strength_composite")
     r3 = row.get("ret_3m")
+    sent = row["sentiment_weighted"]
+    mentions = int(row["mention_count"]) if pd.notna(row["mention_count"]) else 0
 
-    parts = [_ticker_label(ticker), fmt_strength(comp)]
-    if pd.notna(price):
-        parts.append(f":gray[${price:,.2f}]")
+    bits = [_label(ticker), fmt_strength(comp)]
     if pd.notna(r3):
-        parts.append(f"3m {fmt_pct(r3)}")
-    if pd.notna(rsi):
-        parts.append(f":gray[RSI {rsi:.0f}]")
+        bits.append(f"3m {fmt_pct(r3)}")
     if mentions > 0:
-        parts.append(f"sentiment {fmt_sentiment(sent)}")
-    parts.append(f":gray[{mentions} headlines]")
-    header = " &nbsp;·&nbsp; ".join(parts)
+        bits.append(fmt_sentiment(sent))
+    bits.append(f":gray[{mentions} stories]")
+    header = " &nbsp;·&nbsp; ".join(bits)
 
     with st.expander(header):
-        # Strength breakdown row
+        # Strength breakdown
         r1 = row.get("ret_1m")
         r6 = row.get("ret_6m")
         pct_dma = row.get("pct_above_dma200")
         pct_high = row.get("pct_off_52w_high")
-        m_cols = st.columns(5)
-        if pd.notna(r1):
-            m_cols[0].metric("1-month", f"{r1:+.1%}")
-        if pd.notna(r3):
-            m_cols[1].metric("3-month", f"{r3:+.1%}")
-        if pd.notna(r6):
-            m_cols[2].metric("6-month", f"{r6:+.1%}")
-        if pd.notna(pct_dma):
-            m_cols[3].metric("vs 200-DMA", f"{pct_dma:+.1%}")
-        if pd.notna(pct_high):
-            m_cols[4].metric("off 52w high", f"{pct_high:+.1%}")
+        price = row.get("price")
+        rsi = row.get("rsi_14")
 
+        m_cols = st.columns(6)
+        if pd.notna(price):
+            m_cols[0].metric("Price", f"${price:,.2f}")
+        if pd.notna(r1):
+            m_cols[1].metric("1-mo", f"{r1:+.1%}")
+        if pd.notna(r3):
+            m_cols[2].metric("3-mo", f"{r3:+.1%}")
+        if pd.notna(r6):
+            m_cols[3].metric("6-mo", f"{r6:+.1%}")
+        if pd.notna(pct_dma):
+            m_cols[4].metric("vs 200-DMA", f"{pct_dma:+.1%}")
+        if pd.notna(rsi):
+            m_cols[5].metric("RSI(14)", f"{rsi:.0f}")
         _render_headlines(ticker, mentions)
 
 
 def _render_headlines(ticker: str, mentions: int) -> None:
     if mentions == 0:
-        st.caption("_No news in the lookback window — pure technical pick._")
+        st.caption("_No news in lookback window — pure technical pick._")
         return
-    st.caption("Headlines driving today's sentiment:")
+    st.markdown("**Headlines driving sentiment**")
     heads = load_top_headlines(ticker, limit=5)
     if heads.empty:
         st.caption("_(no stored headlines)_")
@@ -298,16 +282,155 @@ def _render_headlines(ticker: str, mentions: int) -> None:
             pub = datetime.fromisoformat(published).strftime("%b %d")
         except Exception:
             pub = published[:10] if published else ""
-        sc_chip = fmt_sentiment(sc)
         st.markdown(
-            f"- {sc_chip} &nbsp; [{headline}]({url}) "
-            f":gray[— {outlet} · {pub}]",
+            f"- {fmt_sentiment(sc)} &nbsp; [{headline}]({url}) :gray[— {outlet} · {pub}]",
             unsafe_allow_html=False,
         )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Main layout
+# Methodology — collapsed in footer
+# ─────────────────────────────────────────────────────────────────────────────
+
+def render_methodology() -> None:
+    with st.expander("How it works"):
+        st.markdown(
+            """
+**Big Names** are 10 fixed established leaders per sector, ranked by today's
+news sentiment.
+
+**New Names** come from a curated pool of ~30 lesser-known mid/small caps per
+sector. They're ranked by a **strength composite** that blends:
+
+| Component | Weight | What it measures |
+|---|---|---|
+| 1-month return | 20% | Is the move still alive? |
+| 3-month return | 30% | Is the trend established? |
+| 6-month return | 20% | Real recovery vs short bounce? |
+| % above 200-DMA | 20% | Long-term trend strength |
+| RSI(14) in 50–70 | 10% | Healthy momentum, not euphoric |
+
+Sentiment from any headlines available is layered on top as a small bonus
+(±0.20 max) so a hot news story can promote a moderately-strong name, but
+technical action dominates.
+
+**Quality floor:** market cap ≥ \\$500M and 20-day average dollar volume
+≥ \\$10M — keeps thinly-traded names out.
+
+**TA gate** (the ✅ / ❌ chip): price > 200-DMA **and** RSI ∈ [40, 70] **and**
+today's volume > 20-day average. Trend + momentum + participation confirmation.
+
+Why this stack: trend × momentum × volume is the classic CANSLIM / O'Neil
+framework adapted for systematic screening. It surfaces names that are
+*already working* rather than hoped-for turnarounds — appropriate for a
+low-drawdown, steady-returns objective.
+
+**Sources:** Finnhub, Marketaux, GDELT 2.0, 14 RSS feeds, 10 subreddits,
+StockTwits. Refreshed automatically every morning via GitHub Actions.
+"""
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Views
+# ─────────────────────────────────────────────────────────────────────────────
+
+def render_landing(df: pd.DataFrame, snap: str) -> None:
+    st.markdown(
+        '<div class="hero">'
+        '<h1 class="hero-title">Daily Sector Sentiment</h1>'
+        '<p class="hero-byline">by Saiesha Gupta &nbsp;·&nbsp; '
+        f'<span class="snap">snapshot {snap}</span></p>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown('<h2 class="prompt">Which sector are you interested in today?</h2>',
+                unsafe_allow_html=True)
+    st.write("")
+
+    # 3x2 grid of sector cards
+    for row_start in (0, 3):
+        cols = st.columns(3, gap="medium")
+        for i, sec in enumerate(SECTOR_ORDER[row_start:row_start + 3]):
+            with cols[i]:
+                sec_df = df[df["sector"] == sec]
+                n_big = int((sec_df["is_blue_chip"] == 1).sum())
+                n_new = int((sec_df["is_blue_chip"] == 0).sum())
+                with st.container(border=True):
+                    st.markdown(f"### {SECTOR_LABELS[sec]}")
+                    st.caption(SECTOR_BLURBS[sec])
+                    st.write("")
+                    st.caption(f"**{n_big}** big names &nbsp;·&nbsp; **{n_new}** new names")
+                    if st.button("Open  →", key=f"open_{sec}", use_container_width=True):
+                        st.session_state.sector = sec
+                        st.rerun()
+
+    st.write("")
+    st.write("")
+    render_methodology()
+
+
+def render_sector(df: pd.DataFrame, sec: str, snap: str) -> None:
+    if st.button("← all sectors", key="back"):
+        st.session_state.sector = None
+        st.rerun()
+
+    sec_df = df[df["sector"] == sec].copy()
+    held = sec_df[sec_df["is_blue_chip"] == 1].sort_values(
+        "sentiment_weighted", ascending=False)
+    watch = sec_df[sec_df["is_blue_chip"] == 0]
+
+    st.markdown(
+        f'<h1 class="sector-title">{SECTOR_LABELS[sec]}</h1>'
+        f'<p class="sector-blurb">{SECTOR_BLURBS[sec]}</p>'
+        f'<p class="snap">snapshot {snap}  ·  {len(held)} big names  ·  {len(watch)} new names</p>',
+        unsafe_allow_html=True,
+    )
+    st.write("")
+
+    # Controls — compact
+    c1, c2, c3 = st.columns([1.2, 2.2, 4])
+    only_ta_pass = c1.toggle("TA pass only", value=False, help="Hide names failing the TA gate")
+    sort_by = c2.radio(
+        "Sort new names by",
+        ["Strength", "Sentiment", "Mentions"],
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+
+    if only_ta_pass:
+        held = held[held["passes_gate"] == 1]
+        watch = watch[watch["passes_gate"] == 1]
+
+    sort_col = {"Strength": "final_score",
+                "Sentiment": "sentiment_weighted",
+                "Mentions": "mention_count"}[sort_by]
+    watch = watch.sort_values(sort_col, ascending=False, na_position="last")
+
+    st.divider()
+    cols = st.columns(2, gap="large")
+    with cols[0]:
+        st.markdown("### Big Names")
+        st.caption("Established leaders, ranked by news sentiment")
+        if held.empty:
+            st.caption("_no data_")
+        for _, row in held.iterrows():
+            render_big_card(row)
+    with cols[1]:
+        st.markdown("### New Names")
+        st.caption(f"Lesser-known names with strong momentum · sorted by {sort_by.lower()}")
+        if watch.empty:
+            st.caption("_no candidates_")
+        for _, row in watch.head(10).iterrows():
+            render_new_card(row)
+
+    st.write("")
+    render_methodology()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Main
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -317,133 +440,69 @@ def main() -> None:
         initial_sidebar_state="collapsed",
     )
 
-    # Tighter spacing
+    # ── CSS — bigger, cleaner typography
     st.markdown(
         """<style>
-        .block-container { padding-top: 1.5rem; max-width: 1500px; }
-        h1 { margin-bottom: 0.25rem; }
-        h2 { margin-top: 1.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(0,0,0,0.10); }
-        h3 { font-size: 1.05rem; opacity: 0.85; margin-bottom: 0.5rem; }
-        details summary { padding: 0.35rem 0.6rem !important; }
+        .block-container { padding-top: 2rem; padding-bottom: 4rem; max-width: 1400px; }
+
+        /* Hero */
+        .hero { padding: 1.5rem 0 1rem 0; }
+        .hero-title { font-size: 3.2rem !important; font-weight: 800; line-height: 1.05;
+                      margin: 0 0 0.5rem 0; letter-spacing: -0.02em; }
+        .hero-byline { font-size: 1rem; margin: 0; opacity: 0.65; }
+        .hero-byline .snap { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+                             font-size: 0.9rem; }
+        .prompt { font-size: 1.6rem !important; font-weight: 600; margin-top: 1.5rem;
+                  margin-bottom: 0.5rem; }
+
+        /* Sector tiles */
+        [data-testid="stContainer"] [data-testid="stContainer"] { padding: 1.25rem; }
+        div[data-testid="stContainer"] h3 { font-size: 1.5rem !important;
+                                            margin: 0 0 0.3rem 0 !important;
+                                            font-weight: 700; }
+
+        /* Sector detail page */
+        .sector-title { font-size: 3rem !important; font-weight: 800;
+                        margin: 0.5rem 0 0.25rem 0; letter-spacing: -0.02em; }
+        .sector-blurb { font-size: 1.05rem; margin: 0 0 0.25rem 0; opacity: 0.7; }
+        .snap { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+                font-size: 0.85rem; opacity: 0.55; margin: 0; }
+
+        /* Section headers inside columns */
+        h3 { font-size: 1.4rem !important; margin-top: 0.5rem !important;
+             margin-bottom: 0.15rem !important; }
+
+        /* Tighter expanders */
+        details summary { padding: 0.5rem 0.75rem !important; font-size: 0.95rem; }
+        details > div { padding-top: 0.5rem; }
+
+        /* Buttons */
+        button[data-testid="stBaseButton-secondary"] {
+            border-radius: 10px;
+            font-weight: 500;
+        }
         </style>""",
         unsafe_allow_html=True,
     )
 
-    st.title("Daily Sector Sentiment")
-    st.markdown(":gray[_by Saiesha Gupta_]")
-
-    # Populate the global ticker → company name lookup once per session
-    global TICKER_NAMES
-    if not TICKER_NAMES:
-        TICKER_NAMES = build_ticker_names()
-
     snap = latest_snapshot_date()
     if not snap:
-        st.warning(
-            "No data yet. Run the refresh job first:\n\n"
-            "```bash\npython -m jobs.daily_refresh\n```"
-        )
+        st.warning("No data yet. Run the refresh job first.")
         st.stop()
 
     df = load_scores(snap)
 
-    # Minimal sub-header
-    st.caption(f"Snapshot **{snap}** · {len(df)} ticker rows")
+    global TICKER_NAMES
+    if not TICKER_NAMES:
+        TICKER_NAMES = build_ticker_names()
 
-    # Compact legend
-    st.markdown(
-        ":gray[**Big Names**: 10 fixed established leaders per sector, ranked by "
-        "news sentiment. **New Names**: lesser-known mid/small caps with the "
-        "strongest price momentum.] "
-        ":green[**green** = positive] :gray[· **gray** = neutral ·] "
-        ":red[**red** = negative]"
-    )
+    if "sector" not in st.session_state:
+        st.session_state.sector = None
 
-    with st.expander("Methodology — technical indicators used and why"):
-        st.markdown(
-            "**Trend filter — Price vs. 200-day moving average.** "
-            "Buy names that are above their 200-DMA (long-term uptrend); avoid "
-            "names below it (falling knives). The 200-DMA is the institutional "
-            "default for distinguishing uptrend from downtrend.\n\n"
-            "**Momentum — 1-month, 3-month, 6-month total returns.** "
-            "Three timeframes prevent whipsaw: 1-month confirms the move is "
-            "still alive, 3-month establishes the trend, 6-month rules out "
-            "short-lived bounces in long downtrends. Weighted 20% / 30% / 20% — "
-            "3-month gets the largest weight because it best balances signal "
-            "and noise.\n\n"
-            "**RSI(14) in [40, 70].** Relative Strength Index measures whether "
-            "buying pressure is healthy. Below 40 = oversold (often falling "
-            "knife); above 70 = overbought (often near a peak). The 40–70 band "
-            "is the sweet spot of sustained buying without euphoria. "
-            "The strength score adds a bonus when RSI is in 50–70 specifically.\n\n"
-            "**Volume confirmation — current vs. 20-day average volume.** "
-            "Rising prices on rising volume = real demand. Rising prices on "
-            "falling volume = weak rally that often reverses. Used as a TA "
-            "gate filter (the ✅/❌ chip on Big Names cards).\n\n"
-            "**Liquidity & quality floor.** Market cap ≥ \\$500M and 20-day "
-            "average dollar volume ≥ \\$10M. Keeps us out of thinly-traded "
-            "names where prices can be moved with little capital.\n\n"
-            "**Why this stack:** trend × momentum × volume is the classic "
-            "CANSLIM / O'Neil framework adapted for systematic screening. "
-            "It tends to surface names that are *already working* rather than "
-            "stocks investors hope will turn around — appropriate for a "
-            "low-drawdown, steady-returns objective."
-        )
-
-    st.divider()
-
-    # Controls
-    ctrl_cols = st.columns([1.3, 1.3, 1.3, 2.5])
-    show_held = ctrl_cols[0].toggle("Show Big Names", value=True)
-    show_watch = ctrl_cols[1].toggle("Show New Names", value=True)
-    only_ta_pass = ctrl_cols[2].toggle("TA gate pass only", value=False)
-    sort_by = ctrl_cols[3].radio(
-        "Sort New Names by",
-        ["Strength", "Sentiment", "Mentions"],
-        horizontal=True,
-        label_visibility="collapsed",
-    )
-
-    if only_ta_pass:
-        df = df[df["passes_gate"] == 1]
-
-    # Sort key for NEW NAMES
-    if sort_by == "Sentiment":
-        new_sort_col, new_sort_asc = "sentiment_weighted", False
-    elif sort_by == "Mentions":
-        new_sort_col, new_sort_asc = "mention_count", False
+    if st.session_state.sector is None:
+        render_landing(df, snap)
     else:
-        new_sort_col, new_sort_asc = "final_score", False
-
-    for sec in SECTOR_ORDER:
-        sec_df = df[df["sector"] == sec].copy()
-        if sec_df.empty:
-            continue
-
-        held = sec_df[sec_df["is_blue_chip"] == 1].sort_values(
-            "sentiment_weighted", ascending=False)
-        watch = sec_df[sec_df["is_blue_chip"] == 0].sort_values(
-            new_sort_col, ascending=new_sort_asc, na_position="last")
-
-        label = SECTOR_LABELS.get(sec, sec)
-        st.header(label)
-        st.caption(f"{len(held)} big · {len(watch)} new")
-
-        cols = st.columns(2, gap="large")
-        if show_held:
-            with cols[0]:
-                st.markdown("###### Big Names")
-                if held.empty:
-                    st.caption("_no data_")
-                for _, row in held.iterrows():
-                    render_big_card(row)
-        if show_watch:
-            with cols[1]:
-                st.markdown(f"###### New Names · _by {sort_by.lower()}_")
-                if watch.empty:
-                    st.caption("_no candidates_")
-                for _, row in watch.head(10).iterrows():
-                    render_new_card(row)
+        render_sector(df, st.session_state.sector, snap)
 
 
 if __name__ == "__main__":
