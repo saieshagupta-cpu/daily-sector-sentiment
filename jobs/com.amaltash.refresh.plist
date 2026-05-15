@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.amaltash.refresh</string>
+
+    <!-- Run: python3 -m amaltash_sentiment.jobs.daily_refresh -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/miniconda3/bin/python3</string>
+        <string>-u</string>
+        <string>-m</string>
+        <string>amaltash_sentiment.jobs.daily_refresh</string>
+    </array>
+
+    <!-- Where the command runs -->
+    <key>WorkingDirectory</key>
+    <string>/Users/saieshagupta/amaltash_strats</string>
+
+    <!-- Daily at 06:30 local time. Markets aren't open yet but news from
+         the prior day + Asia/Europe has all settled. Adjust if you want a
+         different time of day. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>6</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
+
+    <!-- If the Mac is asleep at 06:30, run as soon as it wakes -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <!-- Logs -->
+    <key>StandardOutPath</key>
+    <string>/Users/saieshagupta/amaltash_strats/amaltash_sentiment/jobs/refresh.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/saieshagupta/amaltash_strats/amaltash_sentiment/jobs/refresh.err</string>
+
+    <!-- Ensure Conda's Python finds its installed packages -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/miniconda3/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+</dict>
+</plist>

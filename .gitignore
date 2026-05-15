@@ -1,0 +1,30 @@
+# Secrets — NEVER commit these
+api_keys.env
+.env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime artefacts
+*.log
+*.err
+store/amaltash.db
+store/amaltash.db-journal
+store/amaltash.db-wal
+store/amaltash.db-shm
+extract/us_universe.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# HuggingFace cache (lives in ~/.cache by default, but just in case)
+.cache/

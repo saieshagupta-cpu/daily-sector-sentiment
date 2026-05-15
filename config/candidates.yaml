@@ -1,0 +1,241 @@
+# NEW NAMES candidate pool — under-the-radar mid + small caps in each sector.
+# These are NOT the household megacaps; they're names the strength scorer can
+# surface as "rising stocks worth adding to a portfolio".
+#
+# Curation rules:
+# - US-listed (no delisted/acquired names — verified live as of pull)
+# - Mostly market cap $1B – $30B (mid + small)
+# - NOT in the BIG NAMES list (config/universe.yaml)
+# - Sector-pure: each name's primary business fits the sector
+# - Mix of subsector exposures so daily rotation has room to pick winners
+
+energy:
+  # --- AI Power & nuclear IPPs (data centers' biggest energy buyers) ---
+  - CEG        # Constellation Energy — nuclear, Microsoft PPA
+  - VST        # Vistra — IPP, nuclear
+  - TLN        # Talen Energy — nuclear, AWS Susquehanna deal
+  - NEE        # NextEra — largest US renewables
+  - NRG        # NRG Energy
+  - EXC        # Exelon — regulated nuclear
+  - AEP        # American Electric Power
+  - AES        # AES Corp — renewables + utility
+  # --- Nuclear pure-plays / SMRs / fuel ---
+  - OKLO       # Oklo — small modular reactors
+  - SMR        # NuScale Power — SMR pure-play
+  - LEU        # Centrus Energy — enriched uranium
+  - CCJ        # Cameco — uranium mining
+  # --- Data center power & grid infrastructure ("picks & shovels" of AI) ---
+  - GEV        # GE Vernova — gas turbines, grid equipment
+  - VRT        # Vertiv — data center power/cooling
+  - ETN        # Eaton — power management
+  - POWL       # Powell Industries — switchgear
+  - HUBB       # Hubbell — electrical
+  - NVT        # nVent — electrical enclosures/cooling
+  - MOD        # Modine — data center cooling
+  - PWR        # Quanta Services — grid construction
+  # --- Fuel cells / hydrogen ---
+  - BE         # Bloom Energy — solid oxide fuel cells
+  # --- Solar & clean energy ---
+  - ENPH       # Enphase — solar inverters
+  - FSLR       # First Solar — utility solar manufacturer
+  - ARRY       # Array Technologies — solar trackers
+  - HASI       # Hannon Armstrong — green-energy REIT (cross-listed in REAL_ESTATE)
+  # --- Lithium / battery materials (also cross-listed in MINERALS) ---
+  - ALB        # Albemarle — lithium
+  - SQM        # Sociedad Quimica — lithium
+  - PLL        # Piedmont Lithium
+  # --- LNG & midstream ---
+  - LNG        # Cheniere — LNG exporter
+  - SRE        # Sempra — LNG + California utility
+  - NFE        # New Fortress Energy — LNG
+  - TRGP       # Targa Resources — midstream
+  - WMB        # Williams — midstream
+  # --- Oilfield services + small E&P (kept as smaller slice) ---
+  - HAL        # Halliburton
+  - BKR        # Baker Hughes
+  - LBRT       # Liberty Energy — frac
+  - SM         # SM Energy — small E&P
+  - CHRD       # Chord Energy
+  - PR         # Permian Resources
+
+  # --- Cross-listed in TECH (data center hardware): VRT, MOD, POWL, NVT, PWR, ETN
+  # --- Cross-listed in MINERALS (uranium fuel/mining): CCJ, LEU, OKLO, SMR
+  # --- Cross-listed in REAL ESTATE (green REIT): HASI
+
+healthcare:
+  - ITCI       # Intra-Cellular Therapies
+  - IRTC       # iRhythm — cardiac monitors
+  - TMDX       # TransMedics — organ transport
+  - VKTX       # Viking Therapeutics — GLP-1 small
+  - HALO       # Halozyme
+  - INSM       # Insmed
+  - AXSM       # Axsome Therapeutics
+  - KRYS       # Krystal Biotech
+  - ROIV       # Roivant Sciences
+  - NTRA       # Natera — molecular diagnostics
+  - DOCS       # Doximity
+  - HIMS       # Hims & Hers
+  - OSCR       # Oscar Health
+  - VCYT       # Veracyte
+  - EXEL       # Exelixis
+  - IONS       # Ionis Pharmaceuticals
+  - BMRN       # BioMarin
+  - SRPT       # Sarepta Therapeutics
+  - MDGL       # Madrigal Pharmaceuticals
+  - CYTK       # Cytokinetics
+  - NBIX       # Neurocrine Biosciences
+  - PEN        # Penumbra
+  - GMED       # Globus Medical
+  - INSP       # Inspire Medical Systems
+  - TNDM       # Tandem Diabetes
+  - NARI       # Inari Medical
+  - PCRX       # Pacira BioSciences
+  - ENSG       # Ensign Group
+  - ACHC       # Acadia Healthcare
+  - MOH        # Molina Healthcare
+  # --- Cross-list: telehealth/digital health (also fits TECH) ---
+  - TDOC       # Teladoc
+
+minerals:
+  # --- Uranium / nuclear fuel chain (also cross-listed in ENERGY) ---
+  - CCJ        # Cameco — uranium mining
+  - LEU        # Centrus — enriched uranium
+  - OKLO       # Oklo — SMR
+  - SMR        # NuScale Power
+  - UEC        # Uranium Energy
+  # --- Lithium / battery materials (could also live in ENERGY) ---
+  - UUUU       # Energy Fuels — uranium/rare earth
+  - HBM        # Hudbay Minerals — copper
+  - IE         # Ivanhoe Electric — copper
+  - CMP        # Compass Minerals — salt/specialty
+  - METC       # Ramaco Resources — met coal
+  - HCC        # Warrior Met Coal
+  - ARCH       # Arch Resources — coal
+  - CEIX       # Consol Energy
+  - AMR        # Alpha Metallurgical
+  - IIIN       # Insteel Industries
+  - CMC        # Commercial Metals
+  - CRS        # Carpenter Technology — specialty alloys
+  - ATI        # ATI Inc — titanium/specialty
+  - HAYN       # Haynes International
+  - ZEUS       # Olympic Steel
+  - TROX       # Tronox — titanium
+  - KRO        # Kronos Worldwide — titanium
+  - CC         # Chemours
+  - WLK        # Westlake Corp
+  - OLN        # Olin
+  - CBT        # Cabot Corp
+  - ASIX       # AdvanSix
+  - TSE        # Trinseo — plastics
+  - MEOH       # Methanex
+  - PLL        # Piedmont Lithium
+  - SGML       # Sigma Lithium
+  - KALU       # Kaiser Aluminum
+  - CENX       # Century Aluminum
+  - PAAS       # Pan American Silver
+  - HL         # Hecla Mining
+
+tech:
+  # --- Data center hardware (cross-listed in ENERGY too) ---
+  - VRT        # Vertiv — power/cooling
+  - MOD        # Modine — cooling
+  - POWL       # Powell — switchgear
+  - NVT        # nVent — electrical enclosures
+  - PWR        # Quanta Services — grid construction
+  - ETN        # Eaton — power management
+  - GEV        # GE Vernova — power equipment
+  # --- Telehealth (also cross-listed in HEALTHCARE) ---
+  - HIMS       # Hims & Hers
+  - TDOC       # Teladoc
+  - DOCS       # Doximity
+  - OSCR       # Oscar Health
+  # --- Standard tech ---
+  - IOT        # Samsara
+  - PSTG       # Pure Storage
+  - STRL       # Sterling Infrastructure — data center construction
+  - ONTO       # Onto Innovation — semi equipment
+  - ACLS       # Axcelis — semi
+  - COHR       # Coherent — optics
+  - LITE       # Lumentum — optics
+  - ALAB       # Astera Labs — AI interconnect
+  - CRDO       # Credo Technology
+  - WOLF       # Wolfspeed — SiC
+  - CAMT       # Camtek — Israeli semi
+  - NVMI       # Nova Ltd — semi metrology
+  - TSEM       # Tower Semiconductor — foundry
+  - APP        # AppLovin
+  - KVYO       # Klaviyo
+  - TOST       # Toast
+  - BILL       # Bill
+  - HOOD       # Robinhood
+  - SOFI       # SoFi
+  - AFRM       # Affirm
+  - NCNO       # nCino
+  - DOCN       # DigitalOcean
+  - CFLT       # Confluent
+  - MNDY       # Monday.com
+  - PCOR       # Procore
+
+real_estate:
+  - EGP        # EastGroup Properties — industrial
+  - TRNO       # Terreno Realty — industrial
+  - REXR       # Rexford Industrial
+  - STAG       # STAG Industrial
+  - FR         # First Industrial
+  - CUBE       # CubeSmart — self-storage
+  - NSA        # National Storage Affiliates
+  - IIPR       # Innovative Industrial — cannabis
+  - LAND       # Gladstone Land — farmland
+  - FPI        # Farmland Partners
+  - FCPT       # Four Corners Property Trust
+  - ADC        # Agree Realty — net lease
+  - NTST       # NETSTREIT — net lease
+  - BRX        # Brixmor — shopping centers
+  - ROIC       # Retail Opportunity
+  - IRT        # Independence Realty Trust
+  - ELS        # Equity Lifestyle — manufactured homes
+  - SUI        # Sun Communities
+  - AMH        # American Homes 4 Rent
+  - INVH       # Invitation Homes
+  - NHI        # National Health Investors
+  - OHI        # Omega Healthcare — senior housing
+  - LTC        # LTC Properties
+  - DEA        # Easterly Government Properties
+  - ABR        # Arbor Realty Trust — mortgage REIT
+  - STWD       # Starwood Property
+  - BXMT       # Blackstone Mortgage
+  - HASI       # Hannon Armstrong — green REIT
+  - VICI       # VICI Properties — gaming
+  - ARE        # Alexandria Real Estate — labs
+
+finance:
+  - WAL        # Western Alliance — regional bank
+  - VLY        # Valley National
+  - WBS        # Webster Financial
+  - COLB       # Columbia Banking
+  - BANC       # Banc of California
+  - HOMB       # Home BancShares
+  - UMBF       # UMB Financial
+  - SFBS       # ServisFirst
+  - HWC        # Hancock Whitney
+  - BPOP       # Popular Inc
+  - EWBC       # East West Bancorp
+  - BKU        # BankUnited
+  - EBC        # Eastern Bankshares
+  - FHN        # First Horizon
+  - CFR        # Cullen/Frost
+  - PNFP       # Pinnacle Financial
+  - HLNE       # Hamilton Lane — alts
+  - STEP       # StepStone Group
+  - VCTR       # Victory Capital
+  - CNS        # Cohen & Steers
+  - FHI        # Federated Hermes
+  - LAZ        # Lazard
+  - PJT        # PJT Partners — boutique IB
+  - HLI        # Houlihan Lokey
+  - EVR        # Evercore
+  - JEF        # Jefferies
+  - VIRT       # Virtu Financial
+  - MKTX       # MarketAxess
+  - TW         # Tradeweb
+  - WT         # WisdomTree

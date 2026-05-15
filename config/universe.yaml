@@ -1,0 +1,75 @@
+# Amaltash fixed-sleeve universe — 6 sectors × 10 blue chips = 60 names.
+# These are ALWAYS in the portfolio. The discovery pipeline adds 10 more
+# "watch" names per sector each day, scraped from news/social.
+
+energy:
+  - {ticker: XOM,  name: ExxonMobil}
+  - {ticker: CVX,  name: Chevron}
+  - {ticker: COP,  name: ConocoPhillips}
+  - {ticker: EOG,  name: EOG Resources}
+  - {ticker: OXY,  name: Occidental Petroleum}
+  - {ticker: SLB,  name: Schlumberger}
+  - {ticker: PSX,  name: Phillips 66}
+  - {ticker: MPC,  name: Marathon Petroleum}
+  - {ticker: KMI,  name: Kinder Morgan}
+  - {ticker: FANG, name: Diamondback Energy}
+
+healthcare:
+  - {ticker: UNH,  name: UnitedHealth Group}
+  - {ticker: JNJ,  name: Johnson & Johnson}
+  - {ticker: LLY,  name: Eli Lilly}
+  - {ticker: ABBV, name: AbbVie}
+  - {ticker: MRK,  name: Merck}
+  - {ticker: PFE,  name: Pfizer}
+  - {ticker: TMO,  name: Thermo Fisher Scientific}
+  - {ticker: ISRG, name: Intuitive Surgical}
+  - {ticker: VRTX, name: Vertex Pharmaceuticals}
+  - {ticker: ELV,  name: Elevance Health}
+
+minerals:
+  - {ticker: FCX,  name: Freeport-McMoRan}
+  - {ticker: NEM,  name: Newmont}
+  - {ticker: SCCO, name: Southern Copper}
+  - {ticker: NUE,  name: Nucor}
+  - {ticker: STLD, name: Steel Dynamics}
+  - {ticker: CLF,  name: Cleveland-Cliffs}
+  - {ticker: AA,   name: Alcoa}
+  - {ticker: MP,   name: MP Materials}
+  - {ticker: X,    name: US Steel}
+  - {ticker: RIO,  name: Rio Tinto}
+
+tech:
+  - {ticker: NVDA, name: Nvidia}
+  - {ticker: MSFT, name: Microsoft}
+  - {ticker: AAPL, name: Apple}
+  - {ticker: GOOGL, name: Alphabet}
+  - {ticker: META, name: Meta Platforms}
+  - {ticker: AMZN, name: Amazon}
+  - {ticker: AVGO, name: Broadcom}
+  - {ticker: AMD,  name: Advanced Micro Devices}
+  - {ticker: CRM,  name: Salesforce}
+  - {ticker: PLTR, name: Palantir}
+
+real_estate:
+  - {ticker: PLD,  name: Prologis}
+  - {ticker: AMT,  name: American Tower}
+  - {ticker: EQIX, name: Equinix}
+  - {ticker: DLR,  name: Digital Realty}
+  - {ticker: WELL, name: Welltower}
+  - {ticker: O,    name: Realty Income}
+  - {ticker: SPG,  name: Simon Property Group}
+  - {ticker: PSA,  name: Public Storage}
+  - {ticker: EXR,  name: Extra Space Storage}
+  - {ticker: AVB,  name: AvalonBay Communities}
+
+finance:
+  - {ticker: JPM,  name: JPMorgan Chase}
+  - {ticker: BAC,  name: Bank of America}
+  - {ticker: WFC,  name: Wells Fargo}
+  - {ticker: GS,   name: Goldman Sachs}
+  - {ticker: MS,   name: Morgan Stanley}
+  - {ticker: C,    name: Citigroup}
+  - {ticker: BLK,  name: BlackRock}
+  - {ticker: SCHW, name: Charles Schwab}
+  - {ticker: V,    name: Visa}
+  - {ticker: MA,   name: Mastercard}

@@ -1,0 +1,28 @@
+# Quality gates applied to discovered (non-blue-chip) tickers before they
+# reach the daily watch list. Tune from real data over the first week.
+
+liquidity:
+  min_market_cap_usd: 500_000_000   # $500M floor
+  min_avg_dollar_vol: 10_000_000    # $10M ADV
+
+sentiment:
+  min_distinct_sources: 3           # kills press-release spam
+  novelty_threshold: 1.5            # today's mentions >= 1.5x 7-day avg
+
+source_weights:                     # how much each source's sentiment counts
+  finnhub: 1.0
+  marketaux: 1.0
+  gdelt: 0.7
+  rss: 0.6
+  stocktwits: 0.5
+  reddit: 0.4                       # retail; lower weight than wire reporting
+  sec_edgar: 1.2                    # primary source — weighted higher
+
+technical_gate:
+  trend_dma: 200                    # price > 200-DMA
+  rsi_period: 14
+  rsi_min: 40
+  rsi_max: 70
+  volume_lookback: 20               # current vol > 20d avg
+
+exclude_blue_chips: true            # don't surface names already in fixed sleeve
