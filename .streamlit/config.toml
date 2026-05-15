@@ -1,6 +1,6 @@
 # Streamlit Cloud / local config
 [theme]
-base = "dark"
+base = "light"
 
 [server]
 headless = true

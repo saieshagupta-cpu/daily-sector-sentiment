@@ -313,7 +313,7 @@ def main() -> None:
         """<style>
         .block-container { padding-top: 1.5rem; max-width: 1500px; }
         h1 { margin-bottom: 0.25rem; }
-        h2 { margin-top: 1.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08); }
+        h2 { margin-top: 1.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(0,0,0,0.10); }
         h3 { font-size: 1.05rem; opacity: 0.85; margin-bottom: 0.5rem; }
         details summary { padding: 0.35rem 0.6rem !important; }
         </style>""",
