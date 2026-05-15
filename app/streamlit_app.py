@@ -338,30 +338,30 @@ StockTwits. Refreshed automatically every morning via GitHub Actions.
 def render_landing(df: pd.DataFrame, snap: str) -> None:
     st.markdown(
         '<div class="hero">'
-        '<h1 class="hero-title">Daily Sector Sentiment</h1>'
-        '<p class="hero-byline">by Saiesha Gupta &nbsp;·&nbsp; '
-        f'<span class="snap">snapshot {snap}</span></p>'
+        '<p class="kicker">DAILY SECTOR SENTIMENT</p>'
+        '<h1 class="hero-title">Six sectors.<br/>One view.</h1>'
+        '<p class="hero-sub">News-sentiment-scored Big Names and a strength-screened '
+        'shortlist of rising mid-caps — refreshed every morning.</p>'
+        f'<p class="hero-byline">by Saiesha Gupta &nbsp;·&nbsp; <span class="snap">snapshot {snap}</span></p>'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    st.markdown('<h2 class="prompt">Which sector are you interested in today?</h2>',
-                unsafe_allow_html=True)
-    st.write("")
+    st.markdown('<h2 class="prompt">Pick a sector</h2>', unsafe_allow_html=True)
 
-    # 3x2 grid of sector cards
+    # 3x2 grid of sector cards — numbered, bold, magazine-style
     for row_start in (0, 3):
         cols = st.columns(3, gap="medium")
         for i, sec in enumerate(SECTOR_ORDER[row_start:row_start + 3]):
+            idx = SECTOR_ORDER.index(sec) + 1
             with cols[i]:
-                sec_df = df[df["sector"] == sec]
-                n_big = int((sec_df["is_blue_chip"] == 1).sum())
-                n_new = int((sec_df["is_blue_chip"] == 0).sum())
                 with st.container(border=True):
-                    st.markdown(f"### {SECTOR_LABELS[sec]}")
-                    st.caption(SECTOR_BLURBS[sec])
-                    st.write("")
-                    st.caption(f"**{n_big}** big names &nbsp;·&nbsp; **{n_new}** new names")
+                    st.markdown(
+                        f'<p class="tile-num">{idx:02d}</p>'
+                        f'<h3 class="tile-title">{SECTOR_LABELS[sec]}</h3>'
+                        f'<p class="tile-blurb">{SECTOR_BLURBS[sec]}</p>',
+                        unsafe_allow_html=True,
+                    )
                     if st.button("Open  →", key=f"open_{sec}", use_container_width=True):
                         st.session_state.sector = sec
                         st.rerun()
@@ -380,11 +380,13 @@ def render_sector(df: pd.DataFrame, sec: str, snap: str) -> None:
     held = sec_df[sec_df["is_blue_chip"] == 1].sort_values(
         "sentiment_weighted", ascending=False)
     watch = sec_df[sec_df["is_blue_chip"] == 0]
+    idx = SECTOR_ORDER.index(sec) + 1
 
     st.markdown(
+        f'<p class="kicker">SECTOR · {idx:02d}</p>'
         f'<h1 class="sector-title">{SECTOR_LABELS[sec]}</h1>'
         f'<p class="sector-blurb">{SECTOR_BLURBS[sec]}</p>'
-        f'<p class="snap">snapshot {snap}  ·  {len(held)} big names  ·  {len(watch)} new names</p>',
+        f'<p class="snap">snapshot {snap}</p>',
         unsafe_allow_html=True,
     )
     st.write("")
@@ -411,15 +413,23 @@ def render_sector(df: pd.DataFrame, sec: str, snap: str) -> None:
     st.divider()
     cols = st.columns(2, gap="large")
     with cols[0]:
-        st.markdown("### Big Names")
-        st.caption("Established leaders, ranked by news sentiment")
+        st.markdown(
+            '<p class="col-num">01</p>'
+            '<h2 class="col-title">Big Names</h2>'
+            '<p class="col-sub">Established leaders, ranked by news sentiment</p>',
+            unsafe_allow_html=True,
+        )
         if held.empty:
             st.caption("_no data_")
         for _, row in held.iterrows():
             render_big_card(row)
     with cols[1]:
-        st.markdown("### New Names")
-        st.caption(f"Lesser-known names with strong momentum · sorted by {sort_by.lower()}")
+        st.markdown(
+            '<p class="col-num">02</p>'
+            '<h2 class="col-title">New Names</h2>'
+            f'<p class="col-sub">Rising mid-caps with strong momentum · sorted by {sort_by.lower()}</p>',
+            unsafe_allow_html=True,
+        )
         if watch.empty:
             st.caption("_no candidates_")
         for _, row in watch.head(10).iterrows():
@@ -440,47 +450,152 @@ def main() -> None:
         initial_sidebar_state="collapsed",
     )
 
-    # ── CSS — bigger, cleaner typography
+    # ── CSS — magazine-style: bold typography, numbered sections, accent color
     st.markdown(
         """<style>
-        .block-container { padding-top: 2rem; padding-bottom: 4rem; max-width: 1400px; }
+        /* Container */
+        .block-container { padding-top: 2.5rem; padding-bottom: 5rem; max-width: 1400px; }
+
+        /* Accent — used for section numbers + button outlines */
+        :root { --accent: #FF5A1F; --ink: #0a0a0a; }
+
+        /* Kicker label — small uppercase track above titles */
+        .kicker {
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 0.72rem !important;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+            margin: 0 0 0.6rem 0 !important;
+            text-transform: uppercase;
+        }
 
         /* Hero */
-        .hero { padding: 1.5rem 0 1rem 0; }
-        .hero-title { font-size: 3.2rem !important; font-weight: 800; line-height: 1.05;
-                      margin: 0 0 0.5rem 0; letter-spacing: -0.02em; }
-        .hero-byline { font-size: 1rem; margin: 0; opacity: 0.65; }
-        .hero-byline .snap { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-                             font-size: 0.9rem; }
-        .prompt { font-size: 1.6rem !important; font-weight: 600; margin-top: 1.5rem;
-                  margin-bottom: 0.5rem; }
+        .hero { padding: 0.5rem 0 2.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 2.5rem; }
+        .hero-title {
+            font-size: 4.8rem !important;
+            font-weight: 800;
+            line-height: 0.95;
+            letter-spacing: -0.035em;
+            margin: 0 0 1.2rem 0 !important;
+            color: var(--ink);
+        }
+        .hero-sub {
+            font-size: 1.15rem;
+            line-height: 1.5;
+            margin: 0 0 1.2rem 0 !important;
+            max-width: 640px;
+            opacity: 0.78;
+        }
+        .hero-byline { font-size: 0.9rem; margin: 0 !important; opacity: 0.55; }
+        .hero-byline .snap, .snap {
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 0.82rem;
+        }
 
-        /* Sector tiles */
-        [data-testid="stContainer"] [data-testid="stContainer"] { padding: 1.25rem; }
-        div[data-testid="stContainer"] h3 { font-size: 1.5rem !important;
-                                            margin: 0 0 0.3rem 0 !important;
-                                            font-weight: 700; }
+        /* Prompt */
+        .prompt {
+            font-size: 2rem !important;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-top: 0.5rem !important;
+            margin-bottom: 1.5rem !important;
+        }
 
-        /* Sector detail page */
-        .sector-title { font-size: 3rem !important; font-weight: 800;
-                        margin: 0.5rem 0 0.25rem 0; letter-spacing: -0.02em; }
-        .sector-blurb { font-size: 1.05rem; margin: 0 0 0.25rem 0; opacity: 0.7; }
-        .snap { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-                font-size: 0.85rem; opacity: 0.55; margin: 0; }
+        /* Sector tile */
+        div[data-testid="stContainer"] div[data-testid="stContainer"] {
+            padding: 1.75rem 1.5rem !important;
+            border-radius: 4px !important;
+            transition: border-color 0.15s ease;
+        }
+        div[data-testid="stContainer"] div[data-testid="stContainer"]:hover {
+            border-color: var(--accent) !important;
+        }
+        .tile-num {
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin: 0 0 1.5rem 0 !important;
+        }
+        .tile-title {
+            font-size: 2rem !important;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            margin: 0 0 0.5rem 0 !important;
+        }
+        .tile-blurb {
+            font-size: 0.92rem;
+            opacity: 0.62;
+            margin: 0 0 1.5rem 0 !important;
+            min-height: 2.5rem;
+        }
 
-        /* Section headers inside columns */
-        h3 { font-size: 1.4rem !important; margin-top: 0.5rem !important;
-             margin-bottom: 0.15rem !important; }
+        /* Sector detail title */
+        .sector-title {
+            font-size: 4.5rem !important;
+            font-weight: 800;
+            letter-spacing: -0.035em;
+            line-height: 1;
+            margin: 0 0 0.6rem 0 !important;
+        }
+        .sector-blurb {
+            font-size: 1.1rem;
+            opacity: 0.65;
+            margin: 0 0 0.75rem 0 !important;
+        }
 
-        /* Tighter expanders */
-        details summary { padding: 0.5rem 0.75rem !important; font-size: 0.95rem; }
+        /* Column headers (Big / New) */
+        .col-num {
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 0.78rem;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            margin: 0 !important;
+        }
+        .col-title {
+            font-size: 2.2rem !important;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1;
+            margin: 0.25rem 0 0.5rem 0 !important;
+        }
+        .col-sub {
+            font-size: 0.92rem;
+            opacity: 0.62;
+            margin: 0 0 1.25rem 0 !important;
+        }
+
+        /* Expanders */
+        details summary {
+            padding: 0.65rem 0.85rem !important;
+            font-size: 0.98rem;
+            border-radius: 3px;
+        }
         details > div { padding-top: 0.5rem; }
 
         /* Buttons */
-        button[data-testid="stBaseButton-secondary"] {
-            border-radius: 10px;
-            font-weight: 500;
+        button[data-testid^="stBaseButton"] {
+            border-radius: 3px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.02em;
         }
+
+        /* Back button */
+        button[key="back"] {
+            border: none !important;
+            background: transparent !important;
+            padding-left: 0 !important;
+            color: var(--ink) !important;
+            opacity: 0.6;
+        }
+        button[key="back"]:hover { opacity: 1; color: var(--accent) !important; }
+
+        /* Hide Streamlit header / footer noise */
+        header[data-testid="stHeader"] { background: transparent; }
         </style>""",
         unsafe_allow_html=True,
     )
