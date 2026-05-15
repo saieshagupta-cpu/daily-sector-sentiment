@@ -339,10 +339,7 @@ def main() -> None:
     df = load_scores(snap)
 
     # Minimal sub-header
-    st.caption(
-        f"Snapshot **{snap}** · {len(df)} ticker rows · "
-        f"refresh: `python -m amaltash_sentiment.jobs.daily_refresh`"
-    )
+    st.caption(f"Snapshot **{snap}** · {len(df)} ticker rows")
 
     # Compact legend
     st.markdown(
