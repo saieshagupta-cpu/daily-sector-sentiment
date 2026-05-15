@@ -1,0 +1,81 @@
+name: Daily refresh
+
+# Runs the full sentiment + strength pipeline once a day in the cloud,
+# commits the updated SQLite DB back to main, and triggers a Streamlit
+# Cloud auto-redeploy.
+
+on:
+  schedule:
+    # 11:00 UTC daily = 06:00 ET / 03:00 PT — pre-US-open, after overnight news.
+    # GitHub cron is best-effort, can lag up to ~15 min at peak times.
+    - cron: '0 11 * * *'
+  workflow_dispatch:        # let you trigger manually from the Actions tab
+
+permissions:
+  contents: write           # needed to commit + push the updated DB
+
+# Don't pile up runs if a refresh is still going.
+concurrency:
+  group: daily-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45     # full refresh is ~15 min; 45 is a generous ceiling
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # We need a real (non-shallow) clone so we can push back
+          fetch-depth: 0
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Cache HuggingFace FinBERT (~450MB)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          # Bump this key if you ever change the sentiment model
+          key: hf-finbert-v1
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run daily refresh
+        env:
+          FINNHUB_API_KEY:   ${{ secrets.FINNHUB_API_KEY }}
+          MARKETAUX_API_KEY: ${{ secrets.MARKETAUX_API_KEY }}
+          # Polite UA for Reddit + general requests
+          PYTHONUNBUFFERED: '1'
+        run: python -u -m jobs.daily_refresh
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f store/amaltash.db extract/us_universe.json
+          if git diff --staged --quiet; then
+            echo "Nothing changed in tracked artefacts — skipping commit."
+          else
+            git commit -m "chore: daily refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
+
+      - name: Upload logs as artefact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-logs-${{ github.run_id }}
+          path: |
+            amaltash_sentiment/jobs/refresh.log
+            amaltash_sentiment/jobs/refresh.err
+          if-no-files-found: ignore
+          retention-days: 14
