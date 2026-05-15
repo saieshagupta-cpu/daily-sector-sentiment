@@ -349,8 +349,8 @@ def render_landing(df: pd.DataFrame, snap: str) -> None:
 
     st.markdown('<h2 class="prompt">Pick a sector</h2>', unsafe_allow_html=True)
 
-    # 3x2 grid of sector cards — numbered, bold, magazine-style
-    for row_start in (0, 3):
+    # Grid of sector cards — 3 columns, rows of 3, last row may be partial.
+    for row_start in range(0, len(SECTOR_ORDER), 3):
         cols = st.columns(3, gap="medium")
         for i, sec in enumerate(SECTOR_ORDER[row_start:row_start + 3]):
             idx = SECTOR_ORDER.index(sec) + 1
