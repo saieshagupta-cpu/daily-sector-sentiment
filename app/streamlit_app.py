@@ -28,7 +28,9 @@ from extract.resolver import get_universe as get_us_universe
 from store.db import DB_PATH
 
 
-SECTOR_ORDER = ["energy", "healthcare", "minerals", "tech", "real_estate", "finance"]
+SECTOR_ORDER = ["energy", "healthcare", "minerals",
+                "tech", "real_estate", "finance",
+                "utilities", "fmcg", "defense"]
 SECTOR_LABELS = {
     "energy":      "Energy",
     "healthcare":  "Healthcare",
@@ -36,6 +38,9 @@ SECTOR_LABELS = {
     "tech":        "Tech",
     "real_estate": "Real Estate",
     "finance":     "Finance",
+    "utilities":   "Utilities",
+    "fmcg":        "FMCG",
+    "defense":     "Defense",
 }
 SECTOR_BLURBS = {
     "energy":      "Oil & gas, AI power, nuclear, renewables, midstream",
@@ -44,6 +49,9 @@ SECTOR_BLURBS = {
     "tech":        "Semiconductors, software, AI infra, fintech",
     "real_estate": "REITs across industrial, residential, data center, retail",
     "finance":     "Banks, asset managers, payments, brokerages",
+    "utilities":   "Electric, gas, water utilities and yieldcos",
+    "fmcg":        "Food, beverage, personal care, household, tobacco",
+    "defense":     "Defense primes, aerospace, electronics",
 }
 
 
@@ -339,7 +347,7 @@ def render_landing(df: pd.DataFrame, snap: str) -> None:
     st.markdown(
         '<div class="hero">'
         '<p class="kicker">DAILY SECTOR SENTIMENT</p>'
-        '<h1 class="hero-title">Six sectors.<br/>One view.</h1>'
+        '<h1 class="hero-title">Many sectors.<br/>One view.</h1>'
         '<p class="hero-sub">News-sentiment-scored Big Names and a strength-screened '
         'shortlist of rising mid-caps — refreshed every morning.</p>'
         f'<p class="hero-byline">by Saiesha Gupta &nbsp;·&nbsp; <span class="snap">snapshot {snap}</span></p>'

@@ -208,6 +208,96 @@ real_estate:
   - VICI       # VICI Properties — gaming
   - ARE        # Alexandria Real Estate — labs
 
+utilities:
+  - AEP        # American Electric Power (also energy cross-list)
+  - AEE        # Ameren
+  - CMS        # CMS Energy
+  - ES         # Eversource Energy
+  - LNT        # Alliant Energy
+  - CNP        # CenterPoint Energy
+  - EIX        # Edison International
+  - EVRG       # Evergy
+  - FE         # FirstEnergy
+  - NI         # NiSource
+  - OGE        # OGE Energy
+  - PNW        # Pinnacle West Capital
+  - PPL        # PPL Corp
+  - POR        # Portland General Electric
+  - ATO        # Atmos Energy — gas
+  - NJR        # New Jersey Resources — gas
+  - UGI        # UGI Corp — gas/propane
+  - SR         # Spire — gas
+  - WTRG       # Essential Utilities — water
+  - AWR        # American States Water
+  - CWT        # California Water Service
+  - MSEX       # Middlesex Water
+  - IDA        # IDACORP
+  - ALE        # ALLETE
+  - AVA        # Avista
+  - NWE        # NorthWestern Energy
+  - BKH        # Black Hills Corp
+  - AY         # Atlantica Sustainable Infrastructure
+  - NEE        # NextEra Energy (cross-list from energy)
+  - SRE        # Sempra (cross-list from energy)
+
+defense:
+  - LDOS       # Leidos
+  - SAIC       # SAIC
+  - CACI       # CACI International
+  - HEI        # Heico
+  - WWD        # Woodward
+  - AVAV       # AeroVironment — drones
+  - KTOS       # Kratos Defense
+  - MRCY       # Mercury Systems
+  - CW         # Curtiss-Wright
+  - BWXT       # BWX Technologies — nuclear defense
+  - PSN        # Parsons
+  - TXT        # Textron
+  - HXL        # Hexcel — composites
+  - MTSI       # MACOM Technology
+  - DRS        # Leonardo DRS
+  - RKLB       # Rocket Lab
+  - ASTS       # AST SpaceMobile
+  - IRDM       # Iridium Communications
+  - VSAT       # Viasat
+  - PLTR       # Palantir (also tech cross-list)
+  - ANET       # Arista Networks (also tech cross-list)
+  - GRMN       # Garmin
+  - ESLT       # Elbit Systems (ADR)
+  # End defense
+
+fmcg:
+  - CHD        # Church & Dwight
+  - CLX        # Clorox
+  - EL         # Estee Lauder
+  - COTY       # Coty
+  - EPC        # Edgewell Personal Care
+  - K          # Kellanova
+  - KHC        # Kraft Heinz
+  - CPB        # Campbell's
+  - SJM        # JM Smucker
+  - TSN        # Tyson Foods
+  - HRL        # Hormel
+  - ADM        # Archer Daniels Midland
+  - BG         # Bunge
+  - POST       # Post Holdings
+  - BRBR       # BellRing Brands
+  - LANC       # Lancaster Colony
+  - CALM       # Cal-Maine Foods
+  - MKC        # McCormick
+  - MNST       # Monster Beverage
+  - KDP        # Keurig Dr Pepper
+  - CELH       # Celsius Holdings
+  - COKE       # Coca-Cola Consolidated
+  - STZ        # Constellation Brands
+  - SAM        # Boston Beer
+  - TAP        # Molson Coors
+  - DEO        # Diageo ADR
+  - BTI        # British American Tobacco
+  - ENR        # Energizer Holdings
+  - SPB        # Spectrum Brands
+  - NWL        # Newell Brands
+
 finance:
   - WAL        # Western Alliance — regional bank
   - VLY        # Valley National

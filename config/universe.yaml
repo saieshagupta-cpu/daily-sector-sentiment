@@ -62,6 +62,42 @@ real_estate:
   - {ticker: EXR,  name: Extra Space Storage}
   - {ticker: AVB,  name: AvalonBay Communities}
 
+utilities:
+  - {ticker: DUK,  name: Duke Energy}
+  - {ticker: SO,   name: Southern Company}
+  - {ticker: D,    name: Dominion Energy}
+  - {ticker: XEL,  name: Xcel Energy}
+  - {ticker: ED,   name: Consolidated Edison}
+  - {ticker: WEC,  name: WEC Energy}
+  - {ticker: AWK,  name: American Water Works}
+  - {ticker: PEG,  name: Public Service Enterprise}
+  - {ticker: ETR,  name: Entergy}
+  - {ticker: DTE,  name: DTE Energy}
+
+defense:
+  - {ticker: LMT,   name: Lockheed Martin}
+  - {ticker: RTX,   name: RTX Corporation}
+  - {ticker: NOC,   name: Northrop Grumman}
+  - {ticker: GD,    name: General Dynamics}
+  - {ticker: BA,    name: Boeing}
+  - {ticker: LHX,   name: L3Harris Technologies}
+  - {ticker: TDG,   name: TransDigm}
+  - {ticker: HII,   name: Huntington Ingalls}
+  - {ticker: KBR,   name: KBR}
+  - {ticker: BAH,   name: Booz Allen Hamilton}
+
+fmcg:
+  - {ticker: PG,    name: Procter & Gamble}
+  - {ticker: KO,    name: Coca-Cola}
+  - {ticker: PEP,   name: PepsiCo}
+  - {ticker: CL,    name: Colgate-Palmolive}
+  - {ticker: KMB,   name: Kimberly-Clark}
+  - {ticker: HSY,   name: Hershey}
+  - {ticker: MDLZ,  name: Mondelez}
+  - {ticker: GIS,   name: General Mills}
+  - {ticker: PM,    name: Philip Morris International}
+  - {ticker: MO,    name: Altria}
+
 finance:
   - {ticker: JPM,  name: JPMorgan Chase}
   - {ticker: BAC,  name: Bank of America}

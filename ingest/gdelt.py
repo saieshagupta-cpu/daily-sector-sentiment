@@ -44,6 +44,19 @@ SECTOR_QUERIES: dict[str, str] = {
         '(bank OR "interest rate" OR Fed OR "credit card" OR brokerage '
         'OR "asset management" OR "investment bank" OR fintech) sourcecountry:US'
     ),
+    "utilities": (
+        '("electric utility" OR "gas utility" OR "water utility" OR rate case '
+        'OR FERC OR "transmission lines" OR "renewable energy credit") '
+        'sourcecountry:US'
+    ),
+    "fmcg": (
+        '("consumer staples" OR "packaged food" OR beverage OR snack '
+        'OR cosmetics OR "personal care" OR detergent OR tobacco) sourcecountry:US'
+    ),
+    "defense": (
+        '(Pentagon OR DoD OR "defense contract" OR "F-35" OR missile OR submarine '
+        'OR "aerospace defense" OR Lockheed OR Raytheon OR Northrop) sourcecountry:US'
+    ),
 }
 
 
