@@ -67,10 +67,21 @@ jobs:
           git add -f store/amaltash.db extract/us_universe.json
           if git diff --staged --quiet; then
             echo "Nothing changed in tracked artefacts — skipping commit."
-          else
-            git commit -m "chore: daily refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
+            exit 0
           fi
+          git commit -m "chore: daily refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
+          # Push with retry — if main moved while we were running, rebase + retry.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Push succeeded on attempt $attempt."
+              exit 0
+            fi
+            echo "Push attempt $attempt rejected; rebasing onto origin/main..."
+            git pull --rebase --strategy-option=ours origin main || true
+            sleep $((attempt * 5))
+          done
+          echo "All push attempts failed."
+          exit 1
 
       - name: Upload logs as artefact
         if: always()
